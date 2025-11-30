@@ -58,7 +58,7 @@ export const bots: { [key: string]: BotConfig } = {
         ],
         placeholderText: "지식산업센터에 대해 물어보세요...",
         rag: {
-            coreFiles: [], // 파일을 추가하면 여기에 등록하세요
+            coreFiles: ['산업집적활성화 및 공장설립에 관한 법률(법률)(제21065호)(20260102).md', '지식산업센터입주가능업종.md'], // 파일을 추가하면 여기에 등록하세요
             keywordMap: {}
         },
         disclaimer: "",
@@ -94,4 +94,4 @@ export const bots: { [key: string]: BotConfig } = {
     }
 };
 
-export const defaultBotId = 'oriental';
+export const defaultBotId = 'jisan';

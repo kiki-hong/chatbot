@@ -18,6 +18,43 @@ interface ChatWidgetProps {
   botId?: string;
 }
 
+// Theme configuration based on botId
+const botThemes: {
+  [key: string]: {
+    primary: string;
+    secondary: string;
+    accent: string;
+    userBubble: string;
+    header: string;
+    toggle: string;
+  }
+} = {
+  'oriental': {
+    primary: 'bg-emerald-600',
+    secondary: 'hover:bg-emerald-700',
+    accent: 'focus:ring-emerald-500',
+    userBubble: 'bg-emerald-600 text-white',
+    header: 'bg-stone-800',
+    toggle: 'bg-emerald-600 hover:bg-emerald-700',
+  },
+  'saju': {
+    primary: 'bg-violet-600',
+    secondary: 'hover:bg-violet-700',
+    accent: 'focus:ring-violet-500',
+    userBubble: 'bg-violet-600 text-white',
+    header: 'bg-slate-900',
+    toggle: 'bg-violet-600 hover:bg-violet-700',
+  },
+  'default': {
+    primary: 'bg-blue-600',
+    secondary: 'hover:bg-blue-700',
+    accent: 'focus:ring-blue-500',
+    userBubble: 'bg-blue-600 text-white',
+    header: 'bg-slate-900',
+    toggle: 'bg-blue-600 hover:bg-blue-700',
+  }
+};
+
 // Main ChatWidget component
 export default function ChatWidget({ sourceId = 'default', mode = 'widget', botId = defaultBotId }: ChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(mode === 'embed');
@@ -31,6 +68,7 @@ export default function ChatWidget({ sourceId = 'default', mode = 'widget', botI
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const botConfig = bots[botId] || bots[defaultBotId];
+  const theme = botThemes[botId] || botThemes['default'];
 
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   useEffect(() => { scrollToBottom(); }, [messages]);
@@ -136,7 +174,10 @@ export default function ChatWidget({ sourceId = 'default', mode = 'widget', botI
   const isWidget = mode === 'widget';
 
   return (
-    <div className={clsx("font-sans", isWidget ? "fixed bottom-4 right-4 z-50" : "w-full h-full")}>
+    <div
+      className={clsx("font-sans", isWidget ? "fixed bottom-4 right-4 z-50" : "w-full h-full")}
+      style={isWidget ? { width, height } : undefined}
+    >
       {/* Chat Window */}
       <div
         ref={sidebarRef}
@@ -145,19 +186,21 @@ export default function ChatWidget({ sourceId = 'default', mode = 'widget', botI
           'relative bg-white flex flex-col overflow-hidden',
           isWidget && 'rounded-2xl shadow-xl border border-slate-200 transition-all duration-300',
           isWidget && (isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'),
-          !isWidget && 'h-full w-full'
+          !isWidget && 'h-full w-full',
+          // Mobile: Full screen override
+          isWidget && isOpen && 'max-sm:fixed max-sm:top-0 max-sm:left-0 max-sm:w-full max-sm:h-full max-sm:rounded-none max-sm:bottom-0 max-sm:right-0'
         )}
       >
 
 
         {/* [중요] 헤더 영역: 챗봇의 제목과 닫기 버튼이 있습니다. */}
-        <div className="bg-slate-900 text-white p-4 flex justify-between items-center shrink-0">
+        <div className={clsx("text-white p-4 flex justify-between items-center shrink-0", theme.header)}>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
             <h3 className="font-semibold">{botConfig.chatbotName}</h3>
           </div>
           {isWidget && (
-            <button onClick={() => setIsOpen(false)} className="hover:bg-slate-700 p-1 rounded">
+            <button onClick={() => setIsOpen(false)} className="hover:bg-white/10 p-1 rounded">
               <Minimize2 size={18} />
             </button>
           )}
@@ -180,7 +223,7 @@ export default function ChatWidget({ sourceId = 'default', mode = 'widget', botI
                 'rounded-2xl p-3 text-sm shadow-sm',
                 isWidget ? 'max-w-[85%]' : 'max-w-[80%]',
                 m.role === 'user'
-                  ? 'bg-blue-600 text-white self-end ml-auto rounded-br-none'
+                  ? clsx(theme.userBubble, 'self-end ml-auto rounded-br-none')
                   : 'bg-white text-gray-800 border border-gray-100 self-start rounded-bl-none'
               )}
             >
@@ -204,7 +247,10 @@ export default function ChatWidget({ sourceId = 'default', mode = 'widget', botI
         <form onSubmit={handleSendMessage} className="p-4 bg-white border-t border-gray-100 shrink-0">
           <div className="flex gap-2">
             <input
-              className="flex-1 min-w-0 bg-gray-100 text-gray-900 rounded-full px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              className={clsx(
+                "flex-1 min-w-0 bg-gray-100 text-gray-900 rounded-full px-4 py-2 text-base focus:outline-none focus:ring-2 transition-all",
+                theme.accent
+              )}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder={botConfig.placeholderText}
@@ -219,7 +265,11 @@ export default function ChatWidget({ sourceId = 'default', mode = 'widget', botI
             <button
               type="submit"
               disabled={isLoading || !inputValue.trim()}
-              className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className={clsx(
+                "text-white p-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-colors",
+                theme.primary,
+                theme.secondary
+              )}
             >
               <Send size={18} />
             </button>
@@ -235,7 +285,8 @@ export default function ChatWidget({ sourceId = 'default', mode = 'widget', botI
         <button
           onClick={() => setIsOpen(!isOpen)}
           className={twMerge(
-            'absolute bottom-0 right-0 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-blue-700 transition-all duration-300 hover:scale-110',
+            'absolute bottom-0 right-0 w-14 h-14 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110',
+            theme.toggle,
             isOpen ? 'opacity-0 scale-0 pointer-events-none' : 'opacity-100 scale-100'
           )}
         >
