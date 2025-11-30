@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://jisanbot.vercel.app"),
   title: "지식산업센터 AI 컨설턴트",
   description: "지식산업센터 입주, 분양, 법률, 세무 관련 AI 상담 챗봇입니다.",
   openGraph: {
