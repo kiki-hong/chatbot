@@ -12,36 +12,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-import { bots, defaultBotId } from "@/lib/bots";
-
-const defaultBot = bots[defaultBotId];
-
 export const metadata: Metadata = {
-  title: defaultBot.chatbotName,
-  description: "AI 지식 상담 컨설턴트",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
-  openGraph: {
-    title: defaultBot.chatbotName,
-    description: "AI 지식 상담 컨설턴트",
-    url: "https://jisanbot.vercel.app",
-    siteName: defaultBot.chatbotName,
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "AI Chatbot",
-      },
-    ],
-    locale: "ko_KR",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: defaultBot.chatbotName,
-    description: "AI 지식 상담 컨설턴트",
-    images: ["/og-image.jpg"],
-  },
+  title: "지식산업센터 AI 컨설턴트",
+  description: "지식산업센터 입주, 분양, 법률, 세무 관련 AI 상담 챗봇입니다.",
 };
 
 export default function RootLayout({
